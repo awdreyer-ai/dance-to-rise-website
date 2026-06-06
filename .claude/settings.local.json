@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rm -rf /tmp/dtr-scaffold)",
+      "Bash(mkdir /tmp/dtr-scaffold)",
+      "Read(//private/tmp/dtr-scaffold/**)",
+      "Bash(NPM_CONFIG_CACHE=/tmp/npm-cache npx create-next-app@latest . --typescript --tailwind --app --no-git --no-src-dir --import-alias \"@/*\" --eslint)",
+      "Bash(NPM_CONFIG_CACHE=/tmp/npm-cache npm install react-hook-form resend uuid @types/uuid)",
+      "Bash(cp *)",
+      "Bash(npm run *)",
+      "Bash(NPM_CONFIG_CACHE=/tmp/npm-cache npm install)",
+      "Bash(echo \"PID=$!\")",
+      "Bash(curl -s http://localhost:3000)",
+      "Bash(node -e ' *)",
+      "Bash(grep -E '\\\\.\\(css|scss|ts|tsx|js|jsx|json\\)$')",
+      "Bash(gh auth *)"
+    ]
+  }
+}
