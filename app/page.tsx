@@ -54,7 +54,7 @@ export default function HomePage() {
               alt="Dance to Rise Foundation"
               width={280}
               height={280}
-              className="h-44 sm:h-52 lg:h-64 w-auto drop-shadow-md"
+              className="h-44 sm:h-52 lg:h-64 w-auto"
               priority
             />
           </div>
@@ -92,7 +92,7 @@ export default function HomePage() {
                 key={stat.value}
                 className="bg-[#F7F9FC] rounded-2xl p-8 text-center border border-gray-100 hover:shadow-md transition-shadow duration-200"
               >
-                <div className="font-[family-name:var(--font-playfair)] text-4xl lg:text-5xl font-bold text-[#C4305A] mb-2">
+                <div className="font-[family-name:var(--font-playfair)] text-4xl lg:text-5xl font-bold text-[#28BACC] mb-2">
                   {stat.value}
                 </div>
                 <div className="text-[#555555] text-sm lg:text-base leading-snug">
