@@ -172,6 +172,13 @@ export async function POST(req: NextRequest) {
             <tr style="background:#fff"><td style="padding:4px 8px;">Media — Sponsors</td><td>${bool(data.mediaConsentSponsor)}</td></tr>
             <tr><td style="padding:4px 8px;">Media — Documentary</td><td>${bool(data.mediaConsentDocumentary)}</td></tr>
           </table>
+
+          <div style="margin-top:32px; text-align:center;">
+            <a href="${process.env.NEXT_PUBLIC_SITE_URL}/admin/applications"
+               style="display:inline-block; background:#2547B2; color:white; padding:12px 28px; border-radius:24px; text-decoration:none; font-weight:bold; font-size:14px;">
+              View in Admin Dashboard →
+            </a>
+          </div>
         </div>
       </div>
     `;
@@ -204,7 +211,7 @@ export async function POST(req: NextRequest) {
     emailsToSend.push(
       resend.emails.send({
         from: FROM,
-        to: ["applications@dancetorise.org.za"],
+        to: ["info@dancetorise.org.za"],
         subject: `New Application [${referenceNumber}] — ${data.dancer1FullName} & ${data.dancer2FullName}`,
         html: notificationHtml,
       })
