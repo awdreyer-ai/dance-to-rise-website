@@ -252,6 +252,8 @@ export default function ApplicationForm() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const [fileName, setFileName] = useState<string | null>(null);
+  const [uploadedFileUrl, setUploadedFileUrl] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
   const router = useRouter();
 
   const {
@@ -304,7 +306,11 @@ export default function ApplicationForm() {
     setIsSubmitting(true);
     setSubmitError(null);
     try {
-      const payload = { ...data, fileName: fileName || undefined };
+      const payload = {
+        ...data,
+        motivationFileUrl: uploadedFileUrl || undefined,
+        motivationFileName: fileName || undefined,
+      };
       const res = await fetch("/api/apply", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -557,7 +563,7 @@ export default function ApplicationForm() {
                   ref={fileRef}
                   type="file"
                   accept=".pdf,.docx"
-                  onChange={(e) => {
+                  onChange={async (e) => {
                     const file = e.target.files?.[0];
                     if (file) {
                       if (file.size > 5 * 1024 * 1024) {
@@ -566,8 +572,24 @@ export default function ApplicationForm() {
                         return;
                       }
                       setFileName(file.name);
+                      setIsUploading(true);
+                      try {
+                        const fd = new FormData();
+                        fd.append("file", file);
+                        const res = await fetch("/api/upload", { method: "POST", body: fd });
+                        const json = await res.json();
+                        if (!res.ok) throw new Error(json.error || "Upload failed");
+                        setUploadedFileUrl(json.url);
+                      } catch {
+                        alert("File upload failed. Please try again or type your letter instead.");
+                        setFileName(null);
+                        e.target.value = "";
+                      } finally {
+                        setIsUploading(false);
+                      }
                     } else {
                       setFileName(null);
+                      setUploadedFileUrl(null);
                     }
                   }}
                   className="block w-full text-sm text-[#555555] file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#2547B2]/10 file:text-[#2547B2] hover:file:bg-[#2547B2]/20 transition-colors"
@@ -578,7 +600,7 @@ export default function ApplicationForm() {
                       <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                     </svg>
                     {fileName}
-                    <button type="button" onClick={() => { setFileName(null); if (fileRef.current) fileRef.current.value = ""; }} className="text-[#C4305A] hover:underline text-xs ml-1">Remove</button>
+                    <button type="button" onClick={() => { setFileName(null); setUploadedFileUrl(null); if (fileRef.current) fileRef.current.value = ""; }} className="text-[#C4305A] hover:underline text-xs ml-1">Remove</button>
                   </div>
                 )}
               </div>
@@ -744,10 +766,10 @@ export default function ApplicationForm() {
           ) : (
             <button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isSubmitting || isUploading}
               className="px-8 py-3 bg-[#C4305A] text-white font-semibold rounded-full hover:bg-[#A52848] transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isSubmitting ? "Submitting..." : "Submit Application"}
+              {isUploading ? "Uploading file..." : isSubmitting ? "Submitting..." : "Submit Application"}
             </button>
           )}
         </div>

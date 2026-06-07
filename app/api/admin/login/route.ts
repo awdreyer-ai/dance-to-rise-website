@@ -1,0 +1,21 @@
+import { NextRequest, NextResponse } from "next/server";
+import { makeSessionToken, COOKIE } from "@/lib/admin-auth";
+
+export async function POST(req: NextRequest) {
+  const { password } = await req.json();
+
+  if (!password || password !== process.env.ADMIN_PASSWORD) {
+    return NextResponse.json({ error: "Incorrect password" }, { status: 401 });
+  }
+
+  const token = makeSessionToken();
+  const res = NextResponse.json({ success: true });
+  res.cookies.set(COOKIE, token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 60 * 60 * 8, // 8 hours
+    path: "/",
+  });
+  return res;
+}

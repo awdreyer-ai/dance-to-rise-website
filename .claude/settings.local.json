@@ -13,7 +13,15 @@
       "Bash(curl -s http://localhost:3000)",
       "Bash(node -e ' *)",
       "Bash(grep -E '\\\\.\\(css|scss|ts|tsx|js|jsx|json\\)$')",
-      "Bash(gh auth *)"
+      "Bash(gh auth *)",
+      "Bash(lsof -iTCP -sTCP:LISTEN -nP)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push *)",
+      "Bash(npm install *)",
+      "Bash(sudo chown -R 501:20 \"/Users/awdreyer/.npm\")",
+      "Bash(node -e \"require\\('@vercel/postgres'\\); console.log\\('postgres ok'\\)\")",
+      "Bash(node -e \"require\\('@vercel/blob'\\); console.log\\('blob ok'\\)\")"
     ]
   }
 }
