@@ -88,7 +88,7 @@ export async function POST(req: NextRequest) {
     if (guardian1Email) {
       emailsToSend.push(
         resend.emails.send({
-          from: "Dance to Rise Foundation <noreply@dancetorise.org.za>",
+          from: "Dance to Rise Foundation <info@dancetorise.org.za>",
           to: [guardian1Email],
           subject: `Application Received — Dance to Rise Foundation Class of 2027 [${referenceNumber}]`,
           html: confirmationHtml,
@@ -99,7 +99,7 @@ export async function POST(req: NextRequest) {
     if (guardian2Email && guardian2Email !== guardian1Email) {
       emailsToSend.push(
         resend.emails.send({
-          from: "Dance to Rise Foundation <noreply@dancetorise.org.za>",
+          from: "Dance to Rise Foundation <info@dancetorise.org.za>",
           to: [guardian2Email],
           subject: `Application Received — Dance to Rise Foundation Class of 2027 [${referenceNumber}]`,
           html: confirmationHtml,
@@ -109,7 +109,7 @@ export async function POST(req: NextRequest) {
 
     emailsToSend.push(
       resend.emails.send({
-        from: "Dance to Rise Foundation <noreply@dancetorise.org.za>",
+        from: "Dance to Rise Foundation <info@dancetorise.org.za>",
         to: ["applications@dancetorise.org.za"],
         subject: `New Application [${referenceNumber}] — ${data.dancer1FullName} & ${data.dancer2FullName}`,
         html: notificationHtml,
