@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import { useForm } from "react-hook-form";
+import { upload } from "@vercel/blob/client";
 import { useRouter } from "next/navigation";
 
 interface ApplicationFormData {
@@ -574,12 +575,12 @@ export default function ApplicationForm() {
                       setFileName(file.name);
                       setIsUploading(true);
                       try {
-                        const fd = new FormData();
-                        fd.append("file", file);
-                        const res = await fetch("/api/upload", { method: "POST", body: fd });
-                        const json = await res.json();
-                        if (!res.ok) throw new Error(json.error || "Upload failed");
-                        setUploadedFileUrl(json.url);
+                        const uniqueName = `applications/motivation-${Date.now()}-${file.name}`;
+                        const blob = await upload(uniqueName, file, {
+                          access: "public",
+                          handleUploadUrl: "/api/upload",
+                        });
+                        setUploadedFileUrl(blob.url);
                       } catch {
                         alert("File upload failed. Please try again or type your letter instead.");
                         setFileName(null);

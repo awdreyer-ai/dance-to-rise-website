@@ -1,36 +1,33 @@
+import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
 import { NextRequest, NextResponse } from "next/server";
-import { put } from "@vercel/blob";
 
-export async function POST(req: NextRequest) {
+export async function POST(request: NextRequest): Promise<NextResponse> {
+  const body = (await request.json()) as HandleUploadBody;
+
   try {
-    const formData = await req.formData();
-    const file = formData.get("file") as File | null;
-
-    if (!file) {
-      return NextResponse.json({ error: "No file provided" }, { status: 400 });
-    }
-
-    const allowedTypes = [
-      "application/pdf",
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-    ];
-    if (!allowedTypes.includes(file.type)) {
-      return NextResponse.json({ error: "Only PDF and DOCX files are allowed" }, { status: 400 });
-    }
-
-    if (file.size > 5 * 1024 * 1024) {
-      return NextResponse.json({ error: "File must be under 5MB" }, { status: 400 });
-    }
-
-    const pathname = `motivation-letters/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
-    const blob = await put(pathname, file, {
-      access: "private",
-      token: process.env.BLOB_READ_WRITE_TOKEN,
+    const jsonResponse = await handleUpload({
+      body,
+      request,
+      onBeforeGenerateToken: async () => {
+        return {
+          allowedContentTypes: [
+            "application/pdf",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+          ],
+          maximumSizeInBytes: 5 * 1024 * 1024,
+        };
+      },
+      onUploadCompleted: async ({ blob }) => {
+        console.log("Motivation letter uploaded:", blob.url);
+      },
     });
 
-    return NextResponse.json({ url: blob.url, pathname: blob.pathname, name: file.name });
+    return NextResponse.json(jsonResponse);
   } catch (error) {
-    console.error("File upload error:", error);
-    return NextResponse.json({ error: "Upload failed. Please try again." }, { status: 500 });
+    console.error("Upload token error:", error);
+    return NextResponse.json(
+      { error: (error as Error).message },
+      { status: 400 }
+    );
   }
 }
