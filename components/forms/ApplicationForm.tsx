@@ -255,6 +255,7 @@ export default function ApplicationForm() {
   const [fileBase64, setFileBase64] = useState<string | null>(null);
   const [fileType, setFileType] = useState<string | null>(null);
   const [isReading, setIsReading] = useState(false);
+  const [fileUploadError, setFileUploadError] = useState<string | null>(null);
   const router = useRouter();
 
   const {
@@ -532,84 +533,143 @@ export default function ApplicationForm() {
                 Tell us about your dance journey, what dance means to you, your goals, challenges
                 you have faced, and how Dance to Rise Foundation support would impact your future.
               </p>
-              <div className="p-3 bg-[#F7F9FC] rounded-xl border border-gray-200 text-xs text-[#555555]">
-                You may type below <strong>OR</strong> upload a file (PDF or DOCX, max 3MB). If you
-                upload a file, you do not need to type.
+
+              {/* Instructions */}
+              <div className="p-4 bg-[#EFF8FF] rounded-xl border border-[#28BACC]/30 text-sm text-[#1A1A1A]">
+                <strong>You may type your motivation letter below OR upload a file.</strong>
+                <br />
+                If you upload a file you do not need to type in the text area. Accepted formats: PDF
+                or DOCX, maximum 3MB.
               </div>
-              <div>
-                <label className={labelClass}>Motivation Letter (min 500 words, max 1000 words)</label>
-                <textarea
-                  {...register("motivationLetter", {
-                    validate: (val) => {
-                      if (!fileName && (!val || wordCount(val) < 500)) return "Please write at least 500 words, or upload a file";
-                      if (val && wordCount(val) > 1000) return "Maximum 1000 words";
-                      return true;
-                    },
-                  })}
-                  rows={12}
-                  placeholder="Start writing your motivation letter here..."
-                  className={`${inputClass} resize-none ${errors.motivationLetter ? "border-[#C4305A]" : ""}`}
-                  disabled={!!fileName}
-                />
-                <div className="flex justify-between mt-1">
-                  {errors.motivationLetter && <p className={errorClass}>{errors.motivationLetter.message}</p>}
-                  <span className={`text-xs ml-auto ${motivationWords > 1000 ? "text-[#C4305A]" : motivationWords >= 500 ? "text-[#28BACC]" : "text-[#555555]"}`}>
-                    {motivationWords}/1000 words
-                  </span>
-                </div>
-              </div>
-              <div className="text-center text-[#555555] text-sm font-medium">— OR —</div>
+
+              {/* File upload section */}
               <div>
                 <label className={labelClass}>Upload File (PDF or DOCX, max 3MB)</label>
-                <input
-                  ref={fileRef}
-                  type="file"
-                  accept=".pdf,.docx"
-                  onChange={async (e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      if (file.size > 3 * 1024 * 1024) {
-                        alert("File must be under 3MB");
-                        e.target.value = "";
-                        return;
-                      }
-                      setFileName(file.name);
-                      setFileType(file.type);
-                      setIsReading(true);
-                      try {
-                        const base64 = await new Promise<string>((resolve, reject) => {
-                          const reader = new FileReader();
-                          reader.onload = () => resolve((reader.result as string).split(",")[1]);
-                          reader.onerror = reject;
-                          reader.readAsDataURL(file);
-                        });
-                        setFileBase64(base64);
-                      } catch {
-                        alert("Could not read the file. Please try again or type your letter instead.");
-                        setFileName(null);
-                        setFileType(null);
-                        e.target.value = "";
-                      } finally {
-                        setIsReading(false);
-                      }
-                    } else {
-                      setFileName(null);
-                      setFileBase64(null);
-                      setFileType(null);
-                    }
-                  }}
-                  className="block w-full text-sm text-[#555555] file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#2547B2]/10 file:text-[#2547B2] hover:file:bg-[#2547B2]/20 transition-colors"
-                />
-                {fileName && (
-                  <div className="mt-2 flex items-center gap-2 text-sm text-[#28BACC]">
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+
+                {fileName ? (
+                  /* File selected — show success state, hide the picker */
+                  <div className="mt-1 flex items-center gap-3 p-4 bg-[#F0FDF4] rounded-xl border border-green-200">
+                    <svg className="w-5 h-5 text-green-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    {fileName}
-                    <button type="button" onClick={() => { setFileName(null); setFileBase64(null); setFileType(null); if (fileRef.current) fileRef.current.value = ""; }} className="text-[#C4305A] hover:underline text-xs ml-1">Remove</button>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-green-800">File attached</p>
+                      <p className="text-xs text-green-700 truncate">{fileName}</p>
+                    </div>
+                    {isReading ? (
+                      <span className="text-xs text-[#555555]">Reading…</span>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFileName(null);
+                          setFileBase64(null);
+                          setFileType(null);
+                          setFileUploadError(null);
+                          if (fileRef.current) fileRef.current.value = "";
+                        }}
+                        className="text-xs text-[#C4305A] font-semibold hover:underline flex-shrink-0"
+                      >
+                        Remove file
+                      </button>
+                    )}
                   </div>
+                ) : (
+                  <>
+                    <input
+                      ref={fileRef}
+                      type="file"
+                      accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                      onChange={async (e) => {
+                        setFileUploadError(null);
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+
+                        const allowed = [
+                          "application/pdf",
+                          "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                        ];
+                        if (!allowed.includes(file.type) && !file.name.match(/\.(pdf|docx)$/i)) {
+                          setFileUploadError("Only PDF or DOCX files are accepted.");
+                          e.target.value = "";
+                          return;
+                        }
+                        if (file.size > 3 * 1024 * 1024) {
+                          setFileUploadError("File is too large. Maximum size is 3MB.");
+                          e.target.value = "";
+                          return;
+                        }
+
+                        setFileName(file.name);
+                        setFileType(file.type);
+                        setIsReading(true);
+                        try {
+                          const base64 = await new Promise<string>((resolve, reject) => {
+                            const reader = new FileReader();
+                            reader.onload = () => resolve((reader.result as string).split(",")[1]);
+                            reader.onerror = reject;
+                            reader.readAsDataURL(file);
+                          });
+                          setFileBase64(base64);
+                        } catch {
+                          setFileUploadError("Could not read the file. Please try again or type your letter below.");
+                          setFileName(null);
+                          setFileType(null);
+                          e.target.value = "";
+                        } finally {
+                          setIsReading(false);
+                        }
+                      }}
+                      className="mt-1 block w-full text-sm text-[#555555] file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#2547B2]/10 file:text-[#2547B2] hover:file:bg-[#2547B2]/20 transition-colors cursor-pointer"
+                    />
+                    {fileUploadError && (
+                      <p className="mt-2 text-xs text-[#C4305A] font-medium">{fileUploadError}</p>
+                    )}
+                  </>
                 )}
               </div>
+
+              {/* Textarea — only shown when no file is attached */}
+              {!fileName && (
+                <>
+                  <div className="text-center text-[#555555] text-sm font-medium">— OR —</div>
+                  <div>
+                    <label className={labelClass}>
+                      Type your motivation letter{" "}
+                      <span className="font-normal text-[#555555]">(min 500 words, max 1000 words)</span>
+                    </label>
+                    <textarea
+                      {...register("motivationLetter", {
+                        validate: (val) => {
+                          if (!fileName && (!val || wordCount(val) < 500))
+                            return "Please write at least 500 words, or upload a file above";
+                          if (val && wordCount(val) > 1000) return "Maximum 1000 words";
+                          return true;
+                        },
+                      })}
+                      rows={12}
+                      placeholder="Start writing your motivation letter here..."
+                      className={`${inputClass} resize-none ${errors.motivationLetter ? "border-[#C4305A]" : ""}`}
+                    />
+                    <div className="flex justify-between mt-1">
+                      {errors.motivationLetter && (
+                        <p className={errorClass}>{errors.motivationLetter.message}</p>
+                      )}
+                      <span
+                        className={`text-xs ml-auto ${
+                          motivationWords > 1000
+                            ? "text-[#C4305A]"
+                            : motivationWords >= 500
+                            ? "text-[#28BACC]"
+                            : "text-[#555555]"
+                        }`}
+                      >
+                        {motivationWords} / 1000 words
+                      </span>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           )}
 

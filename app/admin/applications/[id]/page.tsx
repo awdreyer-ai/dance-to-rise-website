@@ -138,12 +138,19 @@ export default async function ApplicationDetailPage({
           {app.motivation_file_base64 ? (
             <a
               href={`/api/admin/applications/${app.id}/download`}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-[#2547B2] text-white text-sm font-semibold rounded-full hover:bg-[#1d3a8e] transition-colors duration-200"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#2547B2] text-white text-sm font-semibold rounded-full hover:bg-[#1d3a8e] transition-colors duration-200"
             >
-              📎 Download {app.motivation_file_name || "motivation letter"}
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              Download Motivation Letter
+              {app.motivation_file_name ? ` — ${app.motivation_file_name}` : ""}
             </a>
           ) : app.motivation_letter ? (
-            <p className="text-sm text-[#1A1A1A] whitespace-pre-wrap leading-relaxed">{app.motivation_letter}</p>
+            <>
+              <p className="text-xs text-[#555555] italic mb-3">Motivation letter typed in form</p>
+              <p className="text-sm text-[#1A1A1A] whitespace-pre-wrap leading-relaxed">{app.motivation_letter}</p>
+            </>
           ) : (
             <p className="text-sm text-gray-400 italic">Not provided</p>
           )}
