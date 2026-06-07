@@ -21,7 +21,10 @@
       "Bash(npm install *)",
       "Bash(sudo chown -R 501:20 \"/Users/awdreyer/.npm\")",
       "Bash(node -e \"require\\('@vercel/postgres'\\); console.log\\('postgres ok'\\)\")",
-      "Bash(node -e \"require\\('@vercel/blob'\\); console.log\\('blob ok'\\)\")"
+      "Bash(node -e \"require\\('@vercel/blob'\\); console.log\\('blob ok'\\)\")",
+      "Bash(node -e \"const b = require\\('@vercel/blob'\\); console.log\\(Object.keys\\(b\\)\\)\")",
+      "Bash(node -e \"const {put} = require\\('@vercel/blob'\\); console.log\\(put.toString\\(\\).slice\\(0,200\\)\\)\")",
+      "Bash(node *)"
     ]
   }
 }

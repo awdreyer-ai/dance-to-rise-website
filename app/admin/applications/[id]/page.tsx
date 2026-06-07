@@ -135,14 +135,12 @@ export default async function ApplicationDetailPage({
           <h2 className="font-[family-name:var(--font-playfair)] text-lg font-bold text-[#2547B2]">Motivation Letter</h2>
         </div>
         <div className="px-6 py-5">
-          {app.motivation_file_url ? (
+          {app.motivation_file_base64 ? (
             <a
-              href={app.motivation_file_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-[#2547B2] font-medium text-sm hover:underline"
+              href={`/api/admin/applications/${app.id}/download`}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-[#2547B2] text-white text-sm font-semibold rounded-full hover:bg-[#1d3a8e] transition-colors duration-200"
             >
-              📎 {app.motivation_file_name || "Download uploaded file"}
+              📎 Download {app.motivation_file_name || "motivation letter"}
             </a>
           ) : app.motivation_letter ? (
             <p className="text-sm text-[#1A1A1A] whitespace-pre-wrap leading-relaxed">{app.motivation_letter}</p>

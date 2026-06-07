@@ -50,8 +50,9 @@ export async function POST(req: NextRequest) {
       missed_competition: data.missedCompetition || undefined,
       missed_explanation: data.missedExplanation || undefined,
       motivation_letter: data.motivationLetter || undefined,
-      motivation_file_url: data.motivationFileUrl || undefined,
       motivation_file_name: data.motivationFileName || undefined,
+      motivation_file_type: data.motivationFileType || undefined,
+      motivation_file_base64: data.motivationFileBase64 || undefined,
       coach_recommendation: data.coachRecommendation,
       coach_comments: data.coachComments,
       coach_confirmation: Boolean(data.coachConfirmation),
@@ -152,8 +153,8 @@ export async function POST(req: NextRequest) {
           </div>
 
           <h3 style="color: #2547B2; border-bottom: 2px solid #E8EDF5; padding-bottom: 6px; margin-top:24px;">Motivation Letter</h3>
-          ${data.motivationFileUrl
-            ? `<p>📎 <a href="${data.motivationFileUrl}">${data.motivationFileName || "Uploaded file"}</a></p>`
+          ${data.motivationFileBase64
+            ? `<p>📎 File attached: <strong>${data.motivationFileName || "motivation-letter"}</strong></p>`
             : `<div style="background:white; border-radius:8px; padding:16px; border:1px solid #E8EDF5;">
                 <p style="white-space:pre-wrap; margin:0; color:#555;">${data.motivationLetter || "—"}</p>
                </div>`}
@@ -214,6 +215,9 @@ export async function POST(req: NextRequest) {
         to: ["info@dancetorise.org.za"],
         subject: `New Application [${referenceNumber}] — ${data.dancer1FullName} & ${data.dancer2FullName}`,
         html: notificationHtml,
+        attachments: data.motivationFileBase64
+          ? [{ filename: data.motivationFileName || "motivation-letter", content: data.motivationFileBase64 }]
+          : [],
       })
     );
 

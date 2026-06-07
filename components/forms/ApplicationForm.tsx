@@ -2,7 +2,6 @@
 
 import { useState, useRef } from "react";
 import { useForm } from "react-hook-form";
-import { upload } from "@vercel/blob/client";
 import { useRouter } from "next/navigation";
 
 interface ApplicationFormData {
@@ -253,8 +252,9 @@ export default function ApplicationForm() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const [fileName, setFileName] = useState<string | null>(null);
-  const [uploadedFileUrl, setUploadedFileUrl] = useState<string | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
+  const [fileBase64, setFileBase64] = useState<string | null>(null);
+  const [fileType, setFileType] = useState<string | null>(null);
+  const [isReading, setIsReading] = useState(false);
   const router = useRouter();
 
   const {
@@ -309,8 +309,9 @@ export default function ApplicationForm() {
     try {
       const payload = {
         ...data,
-        motivationFileUrl: uploadedFileUrl || undefined,
         motivationFileName: fileName || undefined,
+        motivationFileType: fileType || undefined,
+        motivationFileBase64: fileBase64 || undefined,
       };
       const res = await fetch("/api/apply", {
         method: "POST",
@@ -532,7 +533,7 @@ export default function ApplicationForm() {
                 you have faced, and how Dance to Rise Foundation support would impact your future.
               </p>
               <div className="p-3 bg-[#F7F9FC] rounded-xl border border-gray-200 text-xs text-[#555555]">
-                You may type below <strong>OR</strong> upload a file (PDF or DOCX, max 5MB). If you
+                You may type below <strong>OR</strong> upload a file (PDF or DOCX, max 3MB). If you
                 upload a file, you do not need to type.
               </div>
               <div>
@@ -559,7 +560,7 @@ export default function ApplicationForm() {
               </div>
               <div className="text-center text-[#555555] text-sm font-medium">— OR —</div>
               <div>
-                <label className={labelClass}>Upload File (PDF or DOCX, max 5MB)</label>
+                <label className={labelClass}>Upload File (PDF or DOCX, max 3MB)</label>
                 <input
                   ref={fileRef}
                   type="file"
@@ -567,30 +568,34 @@ export default function ApplicationForm() {
                   onChange={async (e) => {
                     const file = e.target.files?.[0];
                     if (file) {
-                      if (file.size > 5 * 1024 * 1024) {
-                        alert("File must be under 5MB");
+                      if (file.size > 3 * 1024 * 1024) {
+                        alert("File must be under 3MB");
                         e.target.value = "";
                         return;
                       }
                       setFileName(file.name);
-                      setIsUploading(true);
+                      setFileType(file.type);
+                      setIsReading(true);
                       try {
-                        const uniqueName = `applications/motivation-${Date.now()}-${file.name}`;
-                        const blob = await upload(uniqueName, file, {
-                          access: "public",
-                          handleUploadUrl: "/api/upload",
+                        const base64 = await new Promise<string>((resolve, reject) => {
+                          const reader = new FileReader();
+                          reader.onload = () => resolve((reader.result as string).split(",")[1]);
+                          reader.onerror = reject;
+                          reader.readAsDataURL(file);
                         });
-                        setUploadedFileUrl(blob.url);
+                        setFileBase64(base64);
                       } catch {
-                        alert("File upload failed. Please try again or type your letter instead.");
+                        alert("Could not read the file. Please try again or type your letter instead.");
                         setFileName(null);
+                        setFileType(null);
                         e.target.value = "";
                       } finally {
-                        setIsUploading(false);
+                        setIsReading(false);
                       }
                     } else {
                       setFileName(null);
-                      setUploadedFileUrl(null);
+                      setFileBase64(null);
+                      setFileType(null);
                     }
                   }}
                   className="block w-full text-sm text-[#555555] file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#2547B2]/10 file:text-[#2547B2] hover:file:bg-[#2547B2]/20 transition-colors"
@@ -601,7 +606,7 @@ export default function ApplicationForm() {
                       <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                     </svg>
                     {fileName}
-                    <button type="button" onClick={() => { setFileName(null); setUploadedFileUrl(null); if (fileRef.current) fileRef.current.value = ""; }} className="text-[#C4305A] hover:underline text-xs ml-1">Remove</button>
+                    <button type="button" onClick={() => { setFileName(null); setFileBase64(null); setFileType(null); if (fileRef.current) fileRef.current.value = ""; }} className="text-[#C4305A] hover:underline text-xs ml-1">Remove</button>
                   </div>
                 )}
               </div>
@@ -767,10 +772,10 @@ export default function ApplicationForm() {
           ) : (
             <button
               type="submit"
-              disabled={isSubmitting || isUploading}
+              disabled={isSubmitting || isReading}
               className="px-8 py-3 bg-[#C4305A] text-white font-semibold rounded-full hover:bg-[#A52848] transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isUploading ? "Uploading file..." : isSubmitting ? "Submitting..." : "Submit Application"}
+              {isReading ? "Reading file..." : isSubmitting ? "Submitting..." : "Submit Application"}
             </button>
           )}
         </div>

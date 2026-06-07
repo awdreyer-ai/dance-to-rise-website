@@ -50,8 +50,9 @@ export async function initDb() {
 
       -- Motivation
       motivation_letter        TEXT,
-      motivation_file_url      TEXT,
       motivation_file_name     TEXT,
+      motivation_file_type     TEXT,
+      motivation_file_base64   TEXT,
 
       -- Coach recommendation
       coach_recommendation     TEXT NOT NULL,
@@ -68,6 +69,9 @@ export async function initDb() {
       popia_consent            BOOLEAN DEFAULT FALSE
     );
   `;
+  // Migrate existing tables that predate this column set
+  await sql`ALTER TABLE applications ADD COLUMN IF NOT EXISTS motivation_file_type TEXT`;
+  await sql`ALTER TABLE applications ADD COLUMN IF NOT EXISTS motivation_file_base64 TEXT`;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -84,7 +88,7 @@ export async function insertApplication(data: ApplicationRow) {
       studio_name, coach_name, coach_phone, coach_email, danced_together,
       styles_competed, competition_level, competitions_last12, recent_results,
       why_applying, cost_challenges, missed_competition, missed_explanation,
-      motivation_letter, motivation_file_url, motivation_file_name,
+      motivation_letter, motivation_file_name, motivation_file_type, motivation_file_base64,
       coach_recommendation, coach_comments, coach_confirmation,
       guardian_declaration, media_consent_website, media_consent_social,
       media_consent_fundraising, media_consent_sponsor, media_consent_documentary,
@@ -102,8 +106,8 @@ export async function insertApplication(data: ApplicationRow) {
       ${data.competitions_last12}, ${data.recent_results ?? null},
       ${data.why_applying}, ${arr(data.cost_challenges)}, ${data.missed_competition ?? null},
       ${data.missed_explanation ?? null},
-      ${data.motivation_letter ?? null}, ${data.motivation_file_url ?? null},
-      ${data.motivation_file_name ?? null},
+      ${data.motivation_letter ?? null}, ${data.motivation_file_name ?? null},
+      ${data.motivation_file_type ?? null}, ${data.motivation_file_base64 ?? null},
       ${data.coach_recommendation}, ${data.coach_comments}, ${data.coach_confirmation},
       ${data.guardian_declaration}, ${data.media_consent_website}, ${data.media_consent_social},
       ${data.media_consent_fundraising}, ${data.media_consent_sponsor},
@@ -182,8 +186,9 @@ export interface ApplicationRow {
   missed_competition?: string;
   missed_explanation?: string;
   motivation_letter?: string;
-  motivation_file_url?: string;
   motivation_file_name?: string;
+  motivation_file_type?: string;
+  motivation_file_base64?: string;
   coach_recommendation: string;
   coach_comments: string;
   coach_confirmation: boolean;
