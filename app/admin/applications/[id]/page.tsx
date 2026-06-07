@@ -85,8 +85,10 @@ export default async function ApplicationDetailPage({
         <Row label="Grade" value={app.dancer1_grade} />
         <Row label="Area" value={app.dancer1_area} />
         <Row label="Guardian Name" value={app.dancer1_guardian_name} />
+        <Row label="Relationship to Dancer" value={app.dancer1_guardian_relationship} />
         <Row label="Guardian Phone" value={app.dancer1_guardian_phone} />
         <Row label="Guardian Email" value={app.dancer1_guardian_email} />
+        <Row label="Parental Consent" value={app.dancer1_guardian_consent} />
       </Section>
 
       <Section title="Dancer 2">
@@ -97,8 +99,10 @@ export default async function ApplicationDetailPage({
         <Row label="Grade" value={app.dancer2_grade} />
         <Row label="Area" value={app.dancer2_area} />
         <Row label="Guardian Name" value={app.dancer2_guardian_name} />
+        <Row label="Relationship to Dancer" value={app.dancer2_guardian_relationship} />
         <Row label="Guardian Phone" value={app.dancer2_guardian_phone} />
         <Row label="Guardian Email" value={app.dancer2_guardian_email} />
+        <Row label="Parental Consent" value={app.dancer2_guardian_consent} />
       </Section>
 
       <Section title="Dance Information">
@@ -115,6 +119,7 @@ export default async function ApplicationDetailPage({
 
       <Section title="Financial Circumstances">
         <Row label="Cost Challenges" value={arr(app.cost_challenges)} />
+        <Row label="Other Challenge (specified)" value={app.cost_challenges_other} />
         <Row label="Missed Competition" value={app.missed_competition} />
         <Row label="Missed Explanation" value={app.missed_explanation} />
       </Section>

@@ -13,8 +13,10 @@ interface ApplicationFormData {
   dancer1Grade: string;
   dancer1Area: string;
   dancer1GuardianName: string;
+  dancer1GuardianRelationship: string;
   dancer1GuardianPhone: string;
   dancer1GuardianEmail: string;
+  dancer1GuardianConsent: boolean;
   // Step 2 - Dancer 2
   dancer2FullName: string;
   dancer2Dob: string;
@@ -23,8 +25,10 @@ interface ApplicationFormData {
   dancer2Grade: string;
   dancer2Area: string;
   dancer2GuardianName: string;
+  dancer2GuardianRelationship: string;
   dancer2GuardianPhone: string;
   dancer2GuardianEmail: string;
+  dancer2GuardianConsent: boolean;
   // Step 3 - Dance Info
   studioName: string;
   coachName: string;
@@ -38,6 +42,7 @@ interface ApplicationFormData {
   // Step 4 - Financial
   whyApplying: string;
   costChallenges: string[];
+  costChallengesOther?: string;
   missedCompetition: string;
   missedExplanation?: string;
   // Step 5 - Motivation
@@ -93,9 +98,10 @@ interface DancerStepProps {
   register: ReturnType<typeof useForm<ApplicationFormData>>["register"];
   errors: ReturnType<typeof useForm<ApplicationFormData>>["formState"]["errors"];
   dobValue?: string;
+  nameValue?: string;
 }
 
-function DancerStep({ prefix, label, register, errors, dobValue }: DancerStepProps) {
+function DancerStep({ prefix, label, register, errors, dobValue, nameValue }: DancerStepProps) {
   const age = calcAge(dobValue || "");
 
   return (
@@ -212,12 +218,30 @@ function DancerStep({ prefix, label, register, errors, dobValue }: DancerStepPro
               className={`${inputClass} ${errors[`${prefix}GuardianName` as keyof typeof errors] ? "border-[#C4305A]" : ""}`}
             />
           </div>
+          <div className="sm:col-span-2">
+            <label className={labelClass}>
+              Relationship to Dancer <span className="text-[#C4305A]">*</span>
+            </label>
+            <select
+              {...register(`${prefix}GuardianRelationship` as keyof ApplicationFormData, { required: "Please select a relationship" })}
+              className={`${inputClass} ${errors[`${prefix}GuardianRelationship` as keyof typeof errors] ? "border-[#C4305A]" : ""}`}
+            >
+              <option value="">Select relationship</option>
+              <option>Mother</option>
+              <option>Father</option>
+              <option>Legal Guardian</option>
+              <option>Other</option>
+            </select>
+            {errors[`${prefix}GuardianRelationship` as keyof typeof errors] && (
+              <p className={errorClass}>{(errors[`${prefix}GuardianRelationship` as keyof typeof errors] as { message?: string })?.message}</p>
+            )}
+          </div>
           <div>
             <label className={labelClass}>
-              Phone <span className="text-[#C4305A]">*</span>
+              Parent or Guardian Telephone <span className="text-[#C4305A]">*</span>
             </label>
             <input
-              {...register(`${prefix}GuardianPhone` as keyof ApplicationFormData, { required: "Phone is required" })}
+              {...register(`${prefix}GuardianPhone` as keyof ApplicationFormData, { required: "Telephone number is required" })}
               type="tel"
               placeholder="+27 XX XXX XXXX"
               className={`${inputClass} ${errors[`${prefix}GuardianPhone` as keyof typeof errors] ? "border-[#C4305A]" : ""}`}
@@ -225,7 +249,7 @@ function DancerStep({ prefix, label, register, errors, dobValue }: DancerStepPro
           </div>
           <div>
             <label className={labelClass}>
-              Email <span className="text-[#C4305A]">*</span>
+              Parent or Guardian Email <span className="text-[#C4305A]">*</span>
             </label>
             <input
               {...register(`${prefix}GuardianEmail` as keyof ApplicationFormData, {
@@ -240,6 +264,27 @@ function DancerStep({ prefix, label, register, errors, dobValue }: DancerStepPro
               <p className={errorClass}>{(errors[`${prefix}GuardianEmail` as keyof typeof errors] as { message?: string })?.message}</p>
             )}
           </div>
+        </div>
+
+        <div className="mt-5 pt-4 border-t border-gray-100">
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              {...register(`${prefix}GuardianConsent` as keyof ApplicationFormData, {
+                required: "Parental consent is required to proceed",
+              })}
+              type="checkbox"
+              className="w-4 h-4 mt-0.5 accent-[#2547B2] flex-shrink-0"
+            />
+            <span className="text-sm text-[#1A1A1A]">
+              I, the parent or guardian of{" "}
+              <strong>{nameValue || "this dancer"}</strong>, consent to this application being
+              submitted to Dance to Rise Foundation and confirm that all information provided is
+              true and accurate. <span className="text-[#C4305A]">*</span>
+            </span>
+          </label>
+          {errors[`${prefix}GuardianConsent` as keyof typeof errors] && (
+            <p className={`${errorClass} mt-2`}>{(errors[`${prefix}GuardianConsent` as keyof typeof errors] as { message?: string })?.message}</p>
+          )}
         </div>
       </div>
     </div>
@@ -268,6 +313,8 @@ export default function ApplicationForm() {
     defaultValues: {
       stylesCompeted: [],
       costChallenges: [],
+      dancer1GuardianConsent: false,
+      dancer2GuardianConsent: false,
       mediaConsentWebsite: false,
       mediaConsentSocial: false,
       mediaConsentFundraising: false,
@@ -280,12 +327,16 @@ export default function ApplicationForm() {
   const watchMotivation = watch("motivationLetter", "");
   const watchWhyApplying = watch("whyApplying", "");
   const watchCoachName = watch("coachName", "");
+  const watchCostChallenges = watch("costChallenges", []);
+  const dancer1Name = watch("dancer1FullName", "");
+  const dancer2Name = watch("dancer2FullName", "");
+  const hasOtherChallenge = Array.isArray(watchCostChallenges) && watchCostChallenges.includes("Other");
 
   const stepFields: Record<number, (keyof ApplicationFormData)[]> = {
-    0: ["dancer1FullName", "dancer1Dob", "dancer1Gender", "dancer1School", "dancer1Grade", "dancer1Area", "dancer1GuardianName", "dancer1GuardianPhone", "dancer1GuardianEmail"],
-    1: ["dancer2FullName", "dancer2Dob", "dancer2Gender", "dancer2School", "dancer2Grade", "dancer2Area", "dancer2GuardianName", "dancer2GuardianPhone", "dancer2GuardianEmail"],
+    0: ["dancer1FullName", "dancer1Dob", "dancer1Gender", "dancer1School", "dancer1Grade", "dancer1Area", "dancer1GuardianName", "dancer1GuardianRelationship", "dancer1GuardianPhone", "dancer1GuardianEmail", "dancer1GuardianConsent"],
+    1: ["dancer2FullName", "dancer2Dob", "dancer2Gender", "dancer2School", "dancer2Grade", "dancer2Area", "dancer2GuardianName", "dancer2GuardianRelationship", "dancer2GuardianPhone", "dancer2GuardianEmail", "dancer2GuardianConsent"],
     2: ["studioName", "coachName", "coachPhone", "coachEmail", "dancedTogether", "competitionLevel"],
-    3: ["whyApplying"],
+    3: ["whyApplying", "costChallengesOther"],
     4: [],
     5: ["coachRecommendation", "coachComments", "coachConfirmation"],
     6: ["guardianDeclaration", "popiaConsent"],
@@ -377,12 +428,12 @@ export default function ApplicationForm() {
 
           {/* STEP 1: Dancer 1 */}
           {step === 0 && (
-            <DancerStep prefix="dancer1" label="Dancer 1 Information" register={register} errors={errors} dobValue={dancer1Dob} />
+            <DancerStep prefix="dancer1" label="Dancer 1 Information" register={register} errors={errors} dobValue={dancer1Dob} nameValue={dancer1Name} />
           )}
 
           {/* STEP 2: Dancer 2 */}
           {step === 1 && (
-            <DancerStep prefix="dancer2" label="Dancer 2 Information" register={register} errors={errors} dobValue={dancer2Dob} />
+            <DancerStep prefix="dancer2" label="Dancer 2 Information" register={register} errors={errors} dobValue={dancer2Dob} nameValue={dancer2Name} />
           )}
 
           {/* STEP 3: Dance Information */}
@@ -429,9 +480,12 @@ export default function ApplicationForm() {
                   <select {...register("competitionLevel", { required: "Please select a level" })} className={`${inputClass} ${errors.competitionLevel ? "border-[#C4305A]" : ""}`}>
                     <option value="">Select</option>
                     <option>Beginner</option>
+                    <option>Bronze</option>
+                    <option>Silver</option>
+                    <option>Gold</option>
                     <option>Novice</option>
-                    <option>Pre-Amateur</option>
-                    <option>Amateur</option>
+                    <option>Pre-Championship</option>
+                    <option>Championship</option>
                     <option>Other</option>
                   </select>
                 </div>
@@ -495,6 +549,27 @@ export default function ApplicationForm() {
                     </label>
                   ))}
                 </div>
+                {hasOtherChallenge && (
+                  <div className="mt-3">
+                    <label className={labelClass}>
+                      Please specify your other financial challenge <span className="text-[#C4305A]">*</span>
+                    </label>
+                    <textarea
+                      {...register("costChallengesOther", {
+                        validate: (val) =>
+                          !hasOtherChallenge ||
+                          (!!val && val.trim().length > 0) ||
+                          "Please describe your other financial challenge",
+                      })}
+                      rows={3}
+                      placeholder="Describe the other cost or financial challenge you face"
+                      className={`${inputClass} resize-none ${errors.costChallengesOther ? "border-[#C4305A]" : ""}`}
+                    />
+                    {errors.costChallengesOther && (
+                      <p className={errorClass}>{errors.costChallengesOther.message}</p>
+                    )}
+                  </div>
+                )}
               </div>
               <div>
                 <label className={labelClass}>Have you ever missed a competition due to cost?</label>

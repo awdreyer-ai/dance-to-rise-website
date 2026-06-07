@@ -10,26 +10,30 @@ export async function initDb() {
       submitted_at             TIMESTAMPTZ DEFAULT NOW(),
 
       -- Dancer 1
-      dancer1_full_name        TEXT NOT NULL,
-      dancer1_dob              DATE NOT NULL,
-      dancer1_gender           TEXT NOT NULL,
-      dancer1_school           TEXT NOT NULL,
-      dancer1_grade            TEXT NOT NULL,
-      dancer1_area             TEXT NOT NULL,
-      dancer1_guardian_name    TEXT NOT NULL,
-      dancer1_guardian_phone   TEXT NOT NULL,
-      dancer1_guardian_email   TEXT NOT NULL,
+      dancer1_full_name             TEXT NOT NULL,
+      dancer1_dob                   DATE NOT NULL,
+      dancer1_gender                TEXT NOT NULL,
+      dancer1_school                TEXT NOT NULL,
+      dancer1_grade                 TEXT NOT NULL,
+      dancer1_area                  TEXT NOT NULL,
+      dancer1_guardian_name         TEXT NOT NULL,
+      dancer1_guardian_relationship TEXT,
+      dancer1_guardian_phone        TEXT NOT NULL,
+      dancer1_guardian_email        TEXT NOT NULL,
+      dancer1_guardian_consent      BOOLEAN DEFAULT FALSE,
 
       -- Dancer 2
-      dancer2_full_name        TEXT NOT NULL,
-      dancer2_dob              DATE NOT NULL,
-      dancer2_gender           TEXT NOT NULL,
-      dancer2_school           TEXT NOT NULL,
-      dancer2_grade            TEXT NOT NULL,
-      dancer2_area             TEXT NOT NULL,
-      dancer2_guardian_name    TEXT NOT NULL,
-      dancer2_guardian_phone   TEXT NOT NULL,
-      dancer2_guardian_email   TEXT NOT NULL,
+      dancer2_full_name             TEXT NOT NULL,
+      dancer2_dob                   DATE NOT NULL,
+      dancer2_gender                TEXT NOT NULL,
+      dancer2_school                TEXT NOT NULL,
+      dancer2_grade                 TEXT NOT NULL,
+      dancer2_area                  TEXT NOT NULL,
+      dancer2_guardian_name         TEXT NOT NULL,
+      dancer2_guardian_relationship TEXT,
+      dancer2_guardian_phone        TEXT NOT NULL,
+      dancer2_guardian_email        TEXT NOT NULL,
+      dancer2_guardian_consent      BOOLEAN DEFAULT FALSE,
 
       -- Dance info
       studio_name              TEXT NOT NULL,
@@ -45,6 +49,7 @@ export async function initDb() {
       -- Financial
       why_applying             TEXT NOT NULL,
       cost_challenges          TEXT[],
+      cost_challenges_other    TEXT,
       missed_competition       TEXT,
       missed_explanation       TEXT,
 
@@ -72,6 +77,11 @@ export async function initDb() {
   // Migrate existing tables that predate this column set
   await sql`ALTER TABLE applications ADD COLUMN IF NOT EXISTS motivation_file_type TEXT`;
   await sql`ALTER TABLE applications ADD COLUMN IF NOT EXISTS motivation_file_base64 TEXT`;
+  await sql`ALTER TABLE applications ADD COLUMN IF NOT EXISTS dancer1_guardian_relationship TEXT`;
+  await sql`ALTER TABLE applications ADD COLUMN IF NOT EXISTS dancer1_guardian_consent BOOLEAN DEFAULT FALSE`;
+  await sql`ALTER TABLE applications ADD COLUMN IF NOT EXISTS dancer2_guardian_relationship TEXT`;
+  await sql`ALTER TABLE applications ADD COLUMN IF NOT EXISTS dancer2_guardian_consent BOOLEAN DEFAULT FALSE`;
+  await sql`ALTER TABLE applications ADD COLUMN IF NOT EXISTS cost_challenges_other TEXT`;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -82,12 +92,12 @@ export async function insertApplication(data: ApplicationRow) {
     INSERT INTO applications (
       reference_number,
       dancer1_full_name, dancer1_dob, dancer1_gender, dancer1_school, dancer1_grade, dancer1_area,
-      dancer1_guardian_name, dancer1_guardian_phone, dancer1_guardian_email,
+      dancer1_guardian_name, dancer1_guardian_relationship, dancer1_guardian_phone, dancer1_guardian_email, dancer1_guardian_consent,
       dancer2_full_name, dancer2_dob, dancer2_gender, dancer2_school, dancer2_grade, dancer2_area,
-      dancer2_guardian_name, dancer2_guardian_phone, dancer2_guardian_email,
+      dancer2_guardian_name, dancer2_guardian_relationship, dancer2_guardian_phone, dancer2_guardian_email, dancer2_guardian_consent,
       studio_name, coach_name, coach_phone, coach_email, danced_together,
       styles_competed, competition_level, competitions_last12, recent_results,
-      why_applying, cost_challenges, missed_competition, missed_explanation,
+      why_applying, cost_challenges, cost_challenges_other, missed_competition, missed_explanation,
       motivation_letter, motivation_file_name, motivation_file_type, motivation_file_base64,
       coach_recommendation, coach_comments, coach_confirmation,
       guardian_declaration, media_consent_website, media_consent_social,
@@ -97,14 +107,14 @@ export async function insertApplication(data: ApplicationRow) {
       ${data.reference_number},
       ${data.dancer1_full_name}, ${data.dancer1_dob}, ${data.dancer1_gender},
       ${data.dancer1_school}, ${data.dancer1_grade}, ${data.dancer1_area},
-      ${data.dancer1_guardian_name}, ${data.dancer1_guardian_phone}, ${data.dancer1_guardian_email},
+      ${data.dancer1_guardian_name}, ${data.dancer1_guardian_relationship ?? null}, ${data.dancer1_guardian_phone}, ${data.dancer1_guardian_email}, ${data.dancer1_guardian_consent},
       ${data.dancer2_full_name}, ${data.dancer2_dob}, ${data.dancer2_gender},
       ${data.dancer2_school}, ${data.dancer2_grade}, ${data.dancer2_area},
-      ${data.dancer2_guardian_name}, ${data.dancer2_guardian_phone}, ${data.dancer2_guardian_email},
+      ${data.dancer2_guardian_name}, ${data.dancer2_guardian_relationship ?? null}, ${data.dancer2_guardian_phone}, ${data.dancer2_guardian_email}, ${data.dancer2_guardian_consent},
       ${data.studio_name}, ${data.coach_name}, ${data.coach_phone}, ${data.coach_email},
       ${data.danced_together}, ${arr(data.styles_competed)}, ${data.competition_level},
       ${data.competitions_last12}, ${data.recent_results ?? null},
-      ${data.why_applying}, ${arr(data.cost_challenges)}, ${data.missed_competition ?? null},
+      ${data.why_applying}, ${arr(data.cost_challenges)}, ${data.cost_challenges_other ?? null}, ${data.missed_competition ?? null},
       ${data.missed_explanation ?? null},
       ${data.motivation_letter ?? null}, ${data.motivation_file_name ?? null},
       ${data.motivation_file_type ?? null}, ${data.motivation_file_base64 ?? null},
@@ -161,8 +171,10 @@ export interface ApplicationRow {
   dancer1_grade: string;
   dancer1_area: string;
   dancer1_guardian_name: string;
+  dancer1_guardian_relationship?: string;
   dancer1_guardian_phone: string;
   dancer1_guardian_email: string;
+  dancer1_guardian_consent: boolean;
   dancer2_full_name: string;
   dancer2_dob: string;
   dancer2_gender: string;
@@ -170,8 +182,10 @@ export interface ApplicationRow {
   dancer2_grade: string;
   dancer2_area: string;
   dancer2_guardian_name: string;
+  dancer2_guardian_relationship?: string;
   dancer2_guardian_phone: string;
   dancer2_guardian_email: string;
+  dancer2_guardian_consent: boolean;
   studio_name: string;
   coach_name: string;
   coach_phone: string;
@@ -183,6 +197,7 @@ export interface ApplicationRow {
   recent_results?: string;
   why_applying: string;
   cost_challenges: string[];
+  cost_challenges_other?: string;
   missed_competition?: string;
   missed_explanation?: string;
   motivation_letter?: string;

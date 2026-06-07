@@ -25,8 +25,10 @@ export async function POST(req: NextRequest) {
       dancer1_grade: data.dancer1Grade,
       dancer1_area: data.dancer1Area,
       dancer1_guardian_name: data.dancer1GuardianName,
+      dancer1_guardian_relationship: data.dancer1GuardianRelationship || undefined,
       dancer1_guardian_phone: data.dancer1GuardianPhone,
       dancer1_guardian_email: data.dancer1GuardianEmail,
+      dancer1_guardian_consent: Boolean(data.dancer1GuardianConsent),
       dancer2_full_name: data.dancer2FullName,
       dancer2_dob: data.dancer2Dob,
       dancer2_gender: data.dancer2Gender,
@@ -34,8 +36,10 @@ export async function POST(req: NextRequest) {
       dancer2_grade: data.dancer2Grade,
       dancer2_area: data.dancer2Area,
       dancer2_guardian_name: data.dancer2GuardianName,
+      dancer2_guardian_relationship: data.dancer2GuardianRelationship || undefined,
       dancer2_guardian_phone: data.dancer2GuardianPhone,
       dancer2_guardian_email: data.dancer2GuardianEmail,
+      dancer2_guardian_consent: Boolean(data.dancer2GuardianConsent),
       studio_name: data.studioName,
       coach_name: data.coachName,
       coach_phone: data.coachPhone,
@@ -47,6 +51,7 @@ export async function POST(req: NextRequest) {
       recent_results: data.recentResults || undefined,
       why_applying: data.whyApplying,
       cost_challenges: Array.isArray(data.costChallenges) ? data.costChallenges : [],
+      cost_challenges_other: data.costChallengesOther || undefined,
       missed_competition: data.missedCompetition || undefined,
       missed_explanation: data.missedExplanation || undefined,
       motivation_letter: data.motivationLetter || undefined,
@@ -117,8 +122,10 @@ export async function POST(req: NextRequest) {
             <tr style="background:#fff"><td style="padding:4px 8px; font-weight:bold;">School</td><td>${data.dancer1School} (${data.dancer1Grade})</td></tr>
             <tr><td style="padding:4px 8px; font-weight:bold;">Area</td><td>${data.dancer1Area}</td></tr>
             <tr style="background:#fff"><td style="padding:4px 8px; font-weight:bold;">Guardian</td><td>${data.dancer1GuardianName}</td></tr>
-            <tr><td style="padding:4px 8px; font-weight:bold;">Guardian Phone</td><td>${data.dancer1GuardianPhone}</td></tr>
-            <tr style="background:#fff"><td style="padding:4px 8px; font-weight:bold;">Guardian Email</td><td>${data.dancer1GuardianEmail}</td></tr>
+            <tr><td style="padding:4px 8px; font-weight:bold;">Relationship</td><td>${data.dancer1GuardianRelationship || "—"}</td></tr>
+            <tr style="background:#fff"><td style="padding:4px 8px; font-weight:bold;">Guardian Phone</td><td>${data.dancer1GuardianPhone}</td></tr>
+            <tr><td style="padding:4px 8px; font-weight:bold;">Guardian Email</td><td>${data.dancer1GuardianEmail}</td></tr>
+            <tr style="background:#fff"><td style="padding:4px 8px; font-weight:bold;">Parental Consent</td><td>${data.dancer1GuardianConsent ? "✅ Given" : "❌ Not given"}</td></tr>
           </table>
 
           <h3 style="color: #2547B2; border-bottom: 2px solid #E8EDF5; padding-bottom: 6px;">Dancer 2</h3>
@@ -129,8 +136,10 @@ export async function POST(req: NextRequest) {
             <tr style="background:#fff"><td style="padding:4px 8px; font-weight:bold;">School</td><td>${data.dancer2School} (${data.dancer2Grade})</td></tr>
             <tr><td style="padding:4px 8px; font-weight:bold;">Area</td><td>${data.dancer2Area}</td></tr>
             <tr style="background:#fff"><td style="padding:4px 8px; font-weight:bold;">Guardian</td><td>${data.dancer2GuardianName}</td></tr>
-            <tr><td style="padding:4px 8px; font-weight:bold;">Guardian Phone</td><td>${data.dancer2GuardianPhone}</td></tr>
-            <tr style="background:#fff"><td style="padding:4px 8px; font-weight:bold;">Guardian Email</td><td>${data.dancer2GuardianEmail}</td></tr>
+            <tr><td style="padding:4px 8px; font-weight:bold;">Relationship</td><td>${data.dancer2GuardianRelationship || "—"}</td></tr>
+            <tr style="background:#fff"><td style="padding:4px 8px; font-weight:bold;">Guardian Phone</td><td>${data.dancer2GuardianPhone}</td></tr>
+            <tr><td style="padding:4px 8px; font-weight:bold;">Guardian Email</td><td>${data.dancer2GuardianEmail}</td></tr>
+            <tr style="background:#fff"><td style="padding:4px 8px; font-weight:bold;">Parental Consent</td><td>${data.dancer2GuardianConsent ? "✅ Given" : "❌ Not given"}</td></tr>
           </table>
 
           <h3 style="color: #2547B2; border-bottom: 2px solid #E8EDF5; padding-bottom: 6px;">Dance Information</h3>
@@ -145,7 +154,7 @@ export async function POST(req: NextRequest) {
           </table>
 
           <h3 style="color: #2547B2; border-bottom: 2px solid #E8EDF5; padding-bottom: 6px;">Financial Circumstances</h3>
-          <p><strong>Cost challenges:</strong> ${Array.isArray(data.costChallenges) ? data.costChallenges.join(", ") : "—"}</p>
+          <p><strong>Cost challenges:</strong> ${Array.isArray(data.costChallenges) ? data.costChallenges.join(", ") : "—"}${data.costChallengesOther ? ` — Other: ${data.costChallengesOther}` : ""}</p>
           <p><strong>Missed competition due to cost:</strong> ${data.missedCompetition || "—"}${data.missedExplanation ? ` — ${data.missedExplanation}` : ""}</p>
           <div style="background:white; border-radius:8px; padding:16px; border:1px solid #E8EDF5; margin-top:8px;">
             <p style="font-weight:bold; margin:0 0 8px;">Why applying:</p>
