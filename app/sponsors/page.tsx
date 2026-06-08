@@ -6,6 +6,20 @@ export const metadata: Metadata = {
   title: "Partner With Us",
   description:
     "Become a sponsor or partner of Dance to Rise Foundation and help talented young DanceSport athletes across South Africa.",
+  openGraph: {
+    title: "Partner With Us — Dance to Rise Foundation",
+    description: "Become a sponsor or partner of Dance to Rise Foundation and help talented young DanceSport athletes across South Africa.",
+    url: "/sponsors",
+    type: "website",
+    siteName: "Dance to Rise Foundation",
+    images: [{ url: "/logo.png", width: 800, height: 600, alt: "Dance to Rise Foundation" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Partner With Us — Dance to Rise Foundation",
+    description: "Become a sponsor or partner of Dance to Rise Foundation and help talented young DanceSport athletes across South Africa.",
+    images: ["/logo.png"],
+  },
 };
 
 const whyPartner = [

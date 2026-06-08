@@ -5,6 +5,20 @@ export const metadata: Metadata = {
   title: "The Beneficiary Programme",
   description:
     "Learn about the Dance to Rise Foundation Beneficiary Programme — what we cover, who can apply, and our selection process.",
+  openGraph: {
+    title: "The Beneficiary Programme — Dance to Rise Foundation",
+    description: "Learn what Dance to Rise Foundation covers, who can apply, and how athletes are selected for the programme.",
+    url: "/programme",
+    type: "website",
+    siteName: "Dance to Rise Foundation",
+    images: [{ url: "/logo.png", width: 800, height: 600, alt: "Dance to Rise Foundation" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "The Beneficiary Programme — Dance to Rise Foundation",
+    description: "Learn what Dance to Rise Foundation covers, who can apply, and how athletes are selected for the programme.",
+    images: ["/logo.png"],
+  },
 };
 
 const covers = [

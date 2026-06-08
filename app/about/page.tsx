@@ -5,6 +5,20 @@ export const metadata: Metadata = {
   title: "About",
   description:
     "Learn about Dance to Rise Foundation's story, vision, mission, and commitment to young DanceSport athletes in South Africa.",
+  openGraph: {
+    title: "About Dance to Rise Foundation",
+    description: "Learn about Dance to Rise Foundation's story, vision, mission, and commitment to young DanceSport athletes in South Africa.",
+    url: "/about",
+    type: "website",
+    siteName: "Dance to Rise Foundation",
+    images: [{ url: "/logo.png", width: 800, height: 600, alt: "Dance to Rise Foundation" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "About Dance to Rise Foundation",
+    description: "Learn about Dance to Rise Foundation's story, vision, mission, and commitment to young DanceSport athletes in South Africa.",
+    images: ["/logo.png"],
+  },
 };
 
 const values = [
