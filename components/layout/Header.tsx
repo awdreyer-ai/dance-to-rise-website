@@ -67,12 +67,12 @@ export default function Header() {
               ))}
             </nav>
 
-            {/* Desktop Apply Now Button */}
+            {/* Desktop Contact Button */}
             <Link
-              href="/apply"
-              className="hidden lg:inline-flex items-center px-5 py-2.5 bg-[#C4305A] text-white text-sm font-semibold rounded-full hover:bg-[#A52848] transition-colors duration-200"
+              href="/contact"
+              className="hidden lg:inline-flex items-center px-5 py-2.5 bg-[#2547B2] text-white text-sm font-semibold rounded-full hover:bg-[#1A3578] transition-colors duration-200"
             >
-              Apply Now
+              Get in Touch
             </Link>
 
             {/* Mobile Hamburger */}
@@ -153,10 +153,10 @@ export default function Header() {
             </nav>
 
             <Link
-              href="/apply"
-              className="mt-6 flex items-center justify-center px-5 py-3 bg-[#C4305A] text-white font-semibold rounded-full hover:bg-[#A52848] transition-colors duration-200"
+              href="/contact"
+              className="mt-6 flex items-center justify-center px-5 py-3 bg-[#2547B2] text-white font-semibold rounded-full hover:bg-[#1A3578] transition-colors duration-200"
             >
-              Apply Now
+              Get in Touch
             </Link>
           </div>
         </div>

@@ -82,10 +82,10 @@ export default function HomePage() {
           </p>
           <div className="mt-10 flex flex-wrap gap-4 justify-center animate-fade-in-delay-2">
             <Link
-              href="/apply"
-              className="px-8 py-4 bg-[#C4305A] text-white font-semibold rounded-full hover:bg-[#A52848] transition-colors duration-200 text-base"
+              href="/programme"
+              className="px-8 py-4 bg-[#2547B2] text-white font-semibold rounded-full hover:bg-[#1A3578] transition-colors duration-200 text-base"
             >
-              Apply Now
+              About the Programme
             </Link>
             <Link
               href="/sponsors"
@@ -243,20 +243,20 @@ export default function HomePage() {
       <section className="bg-[#28BACC] py-16 lg:py-20">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <h2 className="font-[family-name:var(--font-playfair)] text-3xl lg:text-4xl font-bold text-white mb-8">
-            Be Part of the Class of 2027
+            Support the Class of 2027
           </h2>
           <div className="flex flex-wrap gap-4 justify-center">
             <Link
-              href="/apply"
-              className="px-8 py-4 bg-[#C4305A] text-white font-semibold rounded-full hover:bg-[#A52848] transition-colors duration-200"
-            >
-              Apply Now
-            </Link>
-            <Link
               href="/sponsors"
-              className="px-8 py-4 border-2 border-white text-white font-semibold rounded-full hover:bg-white hover:text-[#28BACC] transition-colors duration-200"
+              className="px-8 py-4 bg-white text-[#28BACC] font-semibold rounded-full hover:bg-gray-100 transition-colors duration-200"
             >
               Partner With Us
+            </Link>
+            <Link
+              href="/contact"
+              className="px-8 py-4 border-2 border-white text-white font-semibold rounded-full hover:bg-white hover:text-[#28BACC] transition-colors duration-200"
+            >
+              Get in Touch
             </Link>
           </div>
         </div>
