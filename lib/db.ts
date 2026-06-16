@@ -82,6 +82,23 @@ export async function initDb() {
   await sql`ALTER TABLE applications ADD COLUMN IF NOT EXISTS dancer2_guardian_relationship TEXT`;
   await sql`ALTER TABLE applications ADD COLUMN IF NOT EXISTS dancer2_guardian_consent BOOLEAN DEFAULT FALSE`;
   await sql`ALTER TABLE applications ADD COLUMN IF NOT EXISTS cost_challenges_other TEXT`;
+
+  // AI assessments table — kept strictly separate from human scores (Governance Addendum 1)
+  await sql`
+    CREATE TABLE IF NOT EXISTS ai_assessments (
+      id                     SERIAL PRIMARY KEY,
+      application_id         INTEGER REFERENCES applications(id) ON DELETE CASCADE,
+      financial_need_score   INTEGER,
+      commitment_score       INTEGER,
+      potential_score        INTEGER,
+      motivation_score       INTEGER,
+      coach_rec_score        INTEGER,
+      written_total          INTEGER,
+      reasoning              JSONB,
+      assessed_at            TIMESTAMPTZ DEFAULT NOW(),
+      released               BOOLEAN DEFAULT FALSE
+    );
+  `;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -155,6 +172,64 @@ export async function getApplicationById(id: number) {
 
 export async function deleteApplication(id: number) {
   await sql`DELETE FROM applications WHERE id = ${id};`;
+}
+
+export interface AiAssessment {
+  id: number;
+  application_id: number;
+  financial_need_score: number;
+  commitment_score: number;
+  potential_score: number;
+  motivation_score: number;
+  coach_rec_score: number;
+  written_total: number;
+  reasoning: Record<string, string>;
+  assessed_at: string;
+  released: boolean;
+}
+
+export async function getAiAssessment(applicationId: number): Promise<AiAssessment | null> {
+  const result = await sql`SELECT * FROM ai_assessments WHERE application_id = ${applicationId} ORDER BY assessed_at DESC LIMIT 1;`;
+  return (result.rows[0] as AiAssessment) ?? null;
+}
+
+export async function upsertAiAssessment(
+  applicationId: number,
+  scores: {
+    financial_need_score: number;
+    commitment_score: number;
+    potential_score: number;
+    motivation_score: number;
+    coach_rec_score: number;
+    written_total: number;
+    reasoning: Record<string, string>;
+  }
+) {
+  await sql`DELETE FROM ai_assessments WHERE application_id = ${applicationId}`;
+  await sql`
+    INSERT INTO ai_assessments
+      (application_id, financial_need_score, commitment_score, potential_score, motivation_score, coach_rec_score, written_total, reasoning, released)
+    VALUES
+      (${applicationId}, ${scores.financial_need_score}, ${scores.commitment_score}, ${scores.potential_score}, ${scores.motivation_score}, ${scores.coach_rec_score}, ${scores.written_total}, ${JSON.stringify(scores.reasoning)}, false)
+  `;
+}
+
+export async function releaseAllAiScores() {
+  await sql`UPDATE ai_assessments SET released = true`;
+}
+
+export async function getAllAssessmentsWithApplications() {
+  const result = await sql`
+    SELECT
+      a.id, a.reference_number, a.dancer1_full_name, a.dancer2_full_name,
+      ai.financial_need_score, ai.commitment_score, ai.potential_score,
+      ai.motivation_score, ai.coach_rec_score, ai.written_total,
+      ai.reasoning, ai.assessed_at, ai.released
+    FROM applications a
+    LEFT JOIN ai_assessments ai ON ai.application_id = a.id
+    ORDER BY ai.written_total DESC NULLS LAST
+  `;
+  return result.rows;
 }
 
 export async function getAllApplicationsFull() {

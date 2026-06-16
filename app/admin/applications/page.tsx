@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
-import { getAllApplications, initDb } from "@/lib/db";
+import { getAllApplications, getAllAssessmentsWithApplications, initDb } from "@/lib/db";
 import AdminApplicationsClient from "./AdminApplicationsClient";
 import LogoutButton from "./LogoutButton";
 
@@ -12,6 +12,14 @@ export default async function AdminApplicationsPage() {
 
   await initDb();
   const applications = await getAllApplications();
+  const assessments = await getAllAssessmentsWithApplications();
+  const assessmentMap = Object.fromEntries(
+    assessments.map((a) => [a.id, { ai_score: a.written_total, ai_released: a.released }])
+  );
+  const applicationsWithScores = applications.map((app) => ({
+    ...app,
+    ...(assessmentMap[app.id] || { ai_score: null, ai_released: false }),
+  }));
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -41,7 +49,7 @@ export default async function AdminApplicationsPage() {
           <p className="text-[#555555] text-lg">No applications received yet.</p>
         </div>
       ) : (
-        <AdminApplicationsClient applications={applications} />
+        <AdminApplicationsClient applications={applicationsWithScores} />
       )}
     </div>
   );
