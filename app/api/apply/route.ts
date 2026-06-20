@@ -232,6 +232,22 @@ export async function POST(req: NextRequest) {
 
     await Promise.allSettled(emailsToSend);
 
+    // Notify Siyabonga — fire and forget, don't block the response
+    fetch(`${process.env.SIYABONGA_URL}/api/webhook/application`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-webhook-secret": process.env.CRON_SECRET || "",
+      },
+      body: JSON.stringify({
+        referenceNumber,
+        dancer1: data.dancer1FullName,
+        dancer2: data.dancer2FullName,
+        studio: data.studioName,
+        guardian1Email: data.dancer1GuardianEmail,
+      }),
+    }).catch(() => { /* non-fatal */ });
+
     return NextResponse.json({ success: true, referenceNumber });
   } catch (error) {
     console.error("Application submission error:", error);
